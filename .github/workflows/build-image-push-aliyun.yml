@@ -15,6 +15,7 @@ jobs:
       - uses: actions/checkout@v4.2.2
         with: 
           repository: git@github.com:risuxx/ARL.git
+          branch: master
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
       - name: Build Docker image
