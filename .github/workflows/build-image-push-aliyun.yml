@@ -19,7 +19,14 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t risuxx/arl:latest .
+          docker build -t risuxx/arl-base:latest .
+          docker run --privileged -it -d -p 5003:5003 --name=arl --restart=always risuxx/arl-base:latest /usr/sbin/init
+          sleep 30
+          docker exec -it arl /bin/bash
+          bash misc/setup-arl.sh
+          exit
+          docker commit --change='ENTRYPOINT ["/bin/bash", "/opt/ARL/misc/start-service-arl.sh"]' arl risuxx/arl:latest
+
   test:
     runs-on: ubuntu-latest
 
