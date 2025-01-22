@@ -26,11 +26,7 @@ jobs:
           docker commit --change='ENTRYPOINT ["/bin/bash", "/opt/ARL/misc/start-service-arl.sh"]' arl risuxx/arl:latest
           docker stop arl
           docker rm arl
-
-  test:
-    runs-on: ubuntu-latest
-
-    steps:
+          
       - name: Test Docker image
         run: |
           docker run --name arl-test -d -p 5003:5003 risuxx/arl:latest
@@ -42,10 +38,7 @@ jobs:
       - name: Pack image file
         run: |
           docker save -o arl.tar risuxx/arl:latest
-  deploy:
-    runs-on: ubuntu-latest
 
-    steps:
       - name: Push to Aliyun ECS
         env:
           PRIVATE_KEY: ${{ secrets.ALIYUN_ECS_SSH_PRIVATE_KEY }}
