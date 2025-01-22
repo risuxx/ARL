@@ -56,7 +56,7 @@ jobs:
               docker stop arl
               docker rm arl
             fi
-            docker run -d -p 5003:5003 -v /root/arl:/data/db --name arl --restart always risuxx/arl:latest
+            docker run -d -p 5003:5003 --name arl --restart always risuxx/arl:latest
           "
           rm -f private_key
 
