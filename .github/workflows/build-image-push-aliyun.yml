@@ -19,7 +19,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t risuxx/arl-base:latest .
+          docker build --platform=linux/amd64 -t risuxx/arl-base:latest .
           docker run --privileged -it -d -p 5003:5003 --name=arl --restart=always risuxx/arl-base:latest /usr/sbin/init
           sleep 30
           docker exec arl bash -c "bash misc/setup-arl.sh"
