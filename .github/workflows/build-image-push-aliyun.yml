@@ -23,7 +23,7 @@ jobs:
 
       - name: Test Docker image
         run: |
-          docker run --name arl-test -d -p 5003:5003 arl:latest
+          docker run --name arl-test -d -p 5003:5003 risuxx/arl:latest
           sleep 30
           curl http://localhost:5003 || exit 1
           docker stop arl-test
