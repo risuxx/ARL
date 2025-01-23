@@ -22,3 +22,21 @@ jobs:
       - name: Update code file and build docker image
         run: |
           docker build --platform=linux/amd64 -t risuxx/arl:latest -f UpdateDockerfile .
+      - name: Save docker image
+        run: |
+          docker save -o arl.tar risuxx/arl:latest
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    
+    steps:
+      - name: Push to Aliyun ECS
+        env:
+          PRIVATE_KEY: ${{ secrets.ALIYUN_ECS_SSH_PRIVATE_KEY }}
+          HOST: ${{ secrets.ALIYUN_ECS_HOST }}
+          USER: ${{ secrets.ALIYUN_ECS_USER }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          scp -i private_key -o StrictHostKeyChecking=no arl.tar $USER@$HOST:~
+          ssh -i private_key -o StrictHostKeyChecking=no $USER@$HOST "docker load -i arl.tar"
+          rm -f private_key
