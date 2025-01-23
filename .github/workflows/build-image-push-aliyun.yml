@@ -14,8 +14,8 @@ jobs:
     steps:
       - name: clean running docker
         run: |
-          docker stop arl
-          docker rm arl
+          docker stop arl || true
+          docker rm arl || true
   build:
     runs-on: self-hosted
     needs: clean
