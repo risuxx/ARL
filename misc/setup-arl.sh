@@ -118,7 +118,7 @@ if ! command -v wih &> /dev/null
 then
   echo "install wih ..."
   ## 安装 WIH
-  cp ARL/tools/wih/wih_linux_amd64 wit_linux_amd64 /usr/bin/wih
+  cp ARL/tools/wih/wih_linux_amd64 /usr/bin/wih
   chmod +x /usr/bin/wih
   wih --version
 fi
