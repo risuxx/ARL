@@ -41,7 +41,12 @@ jobs:
     needs: build-base
 
     steps:
-      - name: Update code file
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          
+      - name: Update code file and build docker image
         run: |
           docker build --platform=linux/amd64 -t risuxx/arl:latest -f UpdateDockerfile .
           
