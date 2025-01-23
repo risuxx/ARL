@@ -1,4 +1,4 @@
-FROM risuxx/arl-base:latest
+FROM docker.adysec.com/adysec/arl
 
 WORKDIR /opt/ARL
 
