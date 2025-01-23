@@ -8,8 +8,17 @@ on:
     branches: [ master ]
 
 jobs:
+  clean:
+    runs-on: self-hosted
+
+    steps:
+      - name: clean running docker
+        run: |
+          docker stop arl
+          docker rm arl
   build:
     runs-on: self-hosted
+    needs: clean
 
     steps:
       - name: Checkout repository
@@ -39,6 +48,11 @@ jobs:
         run: |
           docker save -o arl.tar risuxx/arl:latest
 
+  deploy:
+    runs-on: self-hosted
+    needs: build
+    
+    steps:
       - name: Push to Aliyun ECS
         env:
           PRIVATE_KEY: ${{ secrets.ALIYUN_ECS_SSH_PRIVATE_KEY }}
