@@ -1,5 +1,7 @@
 FROM docker.adysec.com/adysec/arl
 
+RUN yum install -y mongodb-org-tools
+
 WORKDIR /opt/ARL
 
 COPY . .
