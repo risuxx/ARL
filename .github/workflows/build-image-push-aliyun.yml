@@ -16,7 +16,7 @@ jobs:
         run: |
           docker stop arl || true
           docker rm arl || true
-  build:
+  build-base:
     runs-on: self-hosted
     needs: clean
 
@@ -28,14 +28,28 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build --platform=linux/amd64 -t risuxx/arl-base:latest .
-          docker run --privileged -it -d -p 5003:5003 --name=arl --restart=always risuxx/arl-base:latest /usr/sbin/init
+          docker build --platform=linux/amd64 -t risuxx/arl-base-pure:latest .
+          docker run --privileged -it -d -p 5003:5003 --name=arl --restart=always risuxx/arl-base-pure:latest /usr/sbin/init
           sleep 30
           docker exec arl bash -c "bash misc/setup-arl.sh"
-          docker commit --change='ENTRYPOINT ["/bin/bash", "/opt/ARL/misc/start-service-arl.sh"]' arl risuxx/arl:latest
+          docker commit --change='ENTRYPOINT ["/bin/bash", "/opt/ARL/misc/start-service-arl.sh"]' arl risuxx/arl-base:latest
           docker stop arl
           docker rm arl
+
+  build:
+    runs-on: self-hosted
+    needs: build-base
+
+    steps:
+      - name: Update code file
+        run: |
+          docker build --platform=linux/amd64 -t risuxx/arl:latest -f UpdateDockerfile .
           
+  test:
+    runs-on: self-hosted
+    needs: build
+
+    steps:
       - name: Test Docker image
         run: |
           docker run --name arl-test -d -p 5003:5003 risuxx/arl:latest
@@ -50,7 +64,7 @@ jobs:
 
   deploy:
     runs-on: self-hosted
-    needs: build
+    needs: [build, test]
     
     steps:
       - name: Push to Aliyun ECS
