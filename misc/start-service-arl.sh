@@ -1,3 +1,10 @@
+echo "start services ..."
+systemctl enable mongod
+systemctl restart mongod
+systemctl enable rabbitmq-server
+systemctl restart rabbitmq-server
+
+chmod +x /opt/ARL/app/tools/*
 echo "start arl services ..."
 
 systemctl enable arl-web

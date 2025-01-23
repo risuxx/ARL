@@ -16,7 +16,7 @@ jobs:
         run: |
           docker stop arl || true
           docker rm arl || true
-  build:
+  build-base:
     runs-on: self-hosted
     needs: clean
 
@@ -26,16 +26,47 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Build Docker image
+      - name: Check if arl-base image exists
+        id: check-image
         run: |
-          docker build --platform=linux/amd64 -t risuxx/arl-base:latest .
-          docker run --privileged -it -d -p 5003:5003 --name=arl --restart=always risuxx/arl-base:latest /usr/sbin/init
+          if docker images risuxx/arl-base:latest | grep -q 'risuxx/arl-base'; then
+            echo "Image exists"
+            echo "exists=true" >> $GITHUB_ENV
+          else
+            echo "Image does not exist"
+            echo "exists=false" >> $GITHUB_ENV
+          fi
+
+      - name: Build Docker image
+        if: env.exists == 'false'
+        run: |
+          docker build --platform=linux/amd64 -t risuxx/arl-base-pure:latest .
+          docker run --privileged -it -d -p 5003:5003 --name=arl --restart=always risuxx/arl-base-pure:latest /usr/sbin/init
           sleep 30
           docker exec arl bash -c "bash misc/setup-arl.sh"
-          docker commit --change='ENTRYPOINT ["/bin/bash", "/opt/ARL/misc/start-service-arl.sh"]' arl risuxx/arl:latest
+          docker commit arl risuxx/arl-base:latest
           docker stop arl
           docker rm arl
+
+  build:
+    runs-on: self-hosted
+    needs: build-base
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
           
+      - name: Update code file and build docker image
+        run: |
+          docker build --platform=linux/amd64 -t risuxx/arl:latest -f UpdateDockerfile .
+          
+  test:
+    runs-on: self-hosted
+    needs: build
+
+    steps:
       - name: Test Docker image
         run: |
           docker run --name arl-test -d -p 5003:5003 risuxx/arl:latest
@@ -44,13 +75,18 @@ jobs:
           docker stop arl-test
           docker rm arl-test
 
+  pack:
+    runs-on: self-hosted
+    needs: test
+
+    steps:
       - name: Pack image file
         run: |
           docker save -o arl.tar risuxx/arl:latest
 
   deploy:
     runs-on: self-hosted
-    needs: build
+    needs: pack
     
     steps:
       - name: Push to Aliyun ECS

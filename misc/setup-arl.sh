@@ -92,8 +92,9 @@ fi
 if [ ! -f /usr/local/bin/pip3.6 ]; then
   echo "install  pip3.6"
   python3.6 -m ensurepip --default-pip
-  python3.6 -m pip install --upgrade pip
-  pip3.6 config --global set global.index-url https://mirrors.adysec.com/language/pypi
+  # 使用本地下载的pip wheel文件进行升级
+  python3.6 -m pip install --upgrade ARL/misc/pip-21.3.1-py3-none-any.whl
+  python3.6 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
   pip3.6 --version
 fi
 
@@ -107,10 +108,10 @@ fi
 if ! command -v nuclei &> /dev/null
 then
   echo "install nuclei"
-  wget -c https://github.com/adysec/ARL/raw/master/tools/nuclei.zip -O nuclei.zip
+  cp ARL/tools/nuclei.zip nuclei.zip
   unzip nuclei.zip && mv nuclei /usr/bin/ && rm -f nuclei.zip
   nuclei -ut
-  rm -rf /opt/*
+  rm -rf /opt/nuclei
 fi
 
 
@@ -118,7 +119,8 @@ if ! command -v wih &> /dev/null
 then
   echo "install wih ..."
   ## 安装 WIH
-  wget -c https://github.com/adysec/ARL/raw/master/tools/wih/wih_linux_amd64 -O /usr/bin/wih && chmod +x /usr/bin/wih
+  cp ARL/tools/wih/wih_linux_amd64 /usr/bin/wih
+  chmod +x /usr/bin/wih
   wih --version
 fi
 
@@ -129,17 +131,6 @@ systemctl restart mongod
 systemctl enable rabbitmq-server
 systemctl restart rabbitmq-server
 
-cd /opt
-if [ ! -d ARL ]; then
-  echo "git clone ARL proj"
-  git clone https://github.com/adysec/ARL
-fi
-
-if [ ! -d "ARL-NPoC" ]; then
-  echo "mv ARL-NPoC proj"
- mv ARL/tools/ARL-NPoC ARL-NPoC
-fi
-
 cd /opt/ARL-NPoC
 echo "install poc requirements ..."
 pip3.6 install -r requirements.txt
@@ -148,25 +139,25 @@ cd ../
 
 if [ ! -f /usr/local/bin/ncrack ]; then
   echo "Download ncrack ..."
-  wget -c https://github.com/adysec/ARL/raw/master/tools/ncrack -O /usr/local/bin/ncrack
+  cp ARL/tools/ncrack /usr/local/bin/ncrack
   chmod +x /usr/local/bin/ncrack
 fi
 
 mkdir -p /usr/local/share/ncrack
 if [ ! -f /usr/local/share/ncrack/ncrack-services ]; then
   echo "Download ncrack-services ..."
-  wget -c https://github.com/adysec/ARL/raw/master/tools/ncrack-services -O /usr/local/share/ncrack/ncrack-services
+  cp ARL/tools/ncrack-services /usr/local/share/ncrack/ncrack-services
 fi
 
 mkdir -p /data/GeoLite2
 if [ ! -f /data/GeoLite2/GeoLite2-ASN.mmdb ]; then
   echo "download GeoLite2-ASN.mmdb ..."
-  wget -c https://github.com/adysec/ARL/raw/master/tools/GeoLite2-ASN.mmdb -O /data/GeoLite2/GeoLite2-ASN.mmdb
+  cp ARL/tools/GeoLite2-ASN.mmdb /data/GeoLite2/GeoLite2-ASN.mmdb
 fi
 
 if [ ! -f /data/GeoLite2/GeoLite2-City.mmdb ]; then
   echo "download GeoLite2-City.mmdb ..."
-  wget -c https://github.com/adysec/ARL/raw/master/tools/GeoLite2-City.mmdb -O /data/GeoLite2/GeoLite2-City.mmdb
+  cp ARL/tools/GeoLite2-City.mmdb /data/GeoLite2/GeoLite2-City.mmdb
 fi
 
 cd /opt/ARL
@@ -237,3 +228,20 @@ if [ ! -f /etc/systemd/system/arl-scheduler.service ]; then
 fi
 
 chmod +x /opt/ARL/app/tools/*
+echo "start arl services ..."
+
+systemctl enable arl-web
+systemctl restart arl-web
+systemctl enable arl-worker
+systemctl restart arl-worker
+systemctl enable arl-worker-github
+systemctl restart arl-worker-github
+systemctl enable arl-scheduler
+systemctl restart arl-scheduler
+systemctl enable nginx
+systemctl restart nginx
+
+python3.6 tools/add_finger.py
+python3.6 tools/add_finger_ehole.py
+
+echo "install done"
