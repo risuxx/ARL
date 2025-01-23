@@ -129,17 +129,6 @@ systemctl restart mongod
 systemctl enable rabbitmq-server
 systemctl restart rabbitmq-server
 
-cd /opt
-if [ ! -d ARL ]; then
-  echo "git clone ARL proj"
-  git clone https://github.com/adysec/ARL
-fi
-
-if [ ! -d "ARL-NPoC" ]; then
-  echo "mv ARL-NPoC proj"
- mv ARL/tools/ARL-NPoC ARL-NPoC
-fi
-
 cd /opt/ARL-NPoC
 echo "install poc requirements ..."
 pip3.6 install -r requirements.txt
