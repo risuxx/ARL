@@ -1,3 +1,4 @@
+chmod +x /opt/ARL/app/tools/*
 echo "start arl services ..."
 
 systemctl enable arl-web
