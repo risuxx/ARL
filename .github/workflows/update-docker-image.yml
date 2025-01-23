@@ -1,0 +1,24 @@
+name: Update code from arl directory base on adysec/arl
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Clean arl container
+        run: |
+          docker stop arl | true
+          docker rm arl | true
+      - name: Update code file and build docker image
+        run: |
+          docker build --platform=linux/amd64 -t risuxx/arl:latest -f UpdateDockerfile .
