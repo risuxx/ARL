@@ -225,4 +225,3 @@ if [ ! -f /etc/systemd/system/arl-scheduler.service ]; then
   cp misc/arl-scheduler.service /etc/systemd/system/
 fi
 
-chmod +x /opt/ARL/app/tools/*
