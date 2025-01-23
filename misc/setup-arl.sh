@@ -93,7 +93,7 @@ if [ ! -f /usr/local/bin/pip3.6 ]; then
   echo "install  pip3.6"
   python3.6 -m ensurepip --default-pip
   python3.6 -m pip install --upgrade pip
-  pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
+  python3.6 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
   pip3.6 --version
 fi
 
