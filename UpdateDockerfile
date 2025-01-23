@@ -5,5 +5,3 @@ WORKDIR /opt/ARL
 COPY . .
 
 COPY tools/ARL-NPoC /opt/ARL-NPoC
-
-ENTRYPOINT ["/bin/bash", "/opt/ARL/misc/start-service-arl.sh"]
