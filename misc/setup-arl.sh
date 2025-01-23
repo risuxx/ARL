@@ -92,7 +92,8 @@ fi
 if [ ! -f /usr/local/bin/pip3.6 ]; then
   echo "install  pip3.6"
   python3.6 -m ensurepip --default-pip
-  python3.6 -m pip install --upgrade pip
+  # 使用本地下载的pip wheel文件进行升级
+  python3.6 -m pip install --upgrade ARL/misc/pip-21.3.1-py3-none-any.whl
   python3.6 -m pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
   pip3.6 --version
 fi
