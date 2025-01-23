@@ -32,7 +32,7 @@ jobs:
           docker run --privileged -it -d -p 5003:5003 --name=arl --restart=always risuxx/arl-base-pure:latest /usr/sbin/init
           sleep 30
           docker exec arl bash -c "bash misc/setup-arl.sh"
-          docker commit --change='ENTRYPOINT ["/bin/bash", "/opt/ARL/misc/start-service-arl.sh"]' arl risuxx/arl-base:latest
+          docker commit arl risuxx/arl-base:latest
           docker stop arl
           docker rm arl
 
@@ -58,13 +58,18 @@ jobs:
           docker stop arl-test
           docker rm arl-test
 
+  pack:
+    runs-on: self-hosted
+    needs: test
+
+    steps:
       - name: Pack image file
         run: |
           docker save -o arl.tar risuxx/arl:latest
 
   deploy:
     runs-on: self-hosted
-    needs: [build, test]
+    needs: pack
     
     steps:
       - name: Push to Aliyun ECS
