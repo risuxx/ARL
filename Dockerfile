@@ -5,4 +5,6 @@ WORKDIR /opt/ARL
 
 COPY . .
 
+COPY tools/ARL-NPoC ../ARL-NPoC
+
 EXPOSE 5003
