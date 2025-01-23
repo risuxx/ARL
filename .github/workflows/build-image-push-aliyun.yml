@@ -26,7 +26,19 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Check if arl-base image exists
+        id: check-image
+        run: |
+          if docker images risuxx/arl-base:latest | grep -q 'risuxx/arl-base'; then
+            echo "Image exists"
+            echo "exists=true" >> $GITHUB_ENV
+          else
+            echo "Image does not exist"
+            echo "exists=false" >> $GITHUB_ENV
+          fi
+
       - name: Build Docker image
+        if: env.exists == 'false'
         run: |
           docker build --platform=linux/amd64 -t risuxx/arl-base-pure:latest .
           docker run --privileged -it -d -p 5003:5003 --name=arl --restart=always risuxx/arl-base-pure:latest /usr/sbin/init
