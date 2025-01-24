@@ -32,5 +32,8 @@ jobs:
     steps:
       - name: Push to Aliyun ECS
         run: |
-          scp -o StrictHostKeyChecking=no arl.tar aliyun:/root/ 
-          ssh -o StrictHostKeyChecking=no aliyun "docker load -i arl.tar"
+          # scp -o StrictHostKeyChecking=no arl.tar aliyun:/root/
+          ssh aliyun
+          docker stop arl || true
+          docker rm arl || true
+          docker load -i arl.tar
